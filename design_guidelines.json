@@ -1,0 +1,96 @@
+{
+  "theme": "dark",
+  "typography": {
+    "primary_font": "Montserrat",
+    "forbidden_fonts": [
+      "Inter",
+      "Roboto",
+      "Poppins",
+      "Arial"
+    ],
+    "weights": [
+      400,
+      500,
+      600,
+      700
+    ],
+    "headings": {
+      "h1": "text-3xl sm:text-4xl font-bold tracking-tight text-white",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight text-white",
+      "h3": "text-xl sm:text-2xl font-semibold text-white",
+      "h4": "text-lg sm:text-xl font-medium text-white"
+    },
+    "body": "text-base font-normal leading-relaxed text-gray-300",
+    "small": "text-sm text-gray-400 font-medium uppercase tracking-wider"
+  },
+  "colors": {
+    "background": "#000000",
+    "primary": "#E0B230",
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "muted": "#71717A"
+    },
+    "surfaces": {
+      "card": "#09090B",
+      "border": "#27272A",
+      "hover": "#18181B"
+    },
+    "status": {
+      "success_paid_active": "#22C55E",
+      "pending_gold": "#E0B230",
+      "partial_orange": "#F97316",
+      "danger_overdue_exited": "#EF4444"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": "Minimal to none. Rely on 1px solid borders (#27272A) for separation and depth.",
+    "borders": "Sharp or slightly rounded (rounded-md/rounded-lg). Keep them subtle but distinct.",
+    "effects": "Avoid soft fuzzy shadows. Use flat solid dark backgrounds (#09090B, #18181B) to layer content."
+  },
+  "layouts": {
+    "sidebar": "Fixed left sidebar, dark background (#000000 or #09090B), containing navigation items and the provided MARKLENCEMEDIA logo at the top.",
+    "dashboard_grid": "High density but breathable grid. grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6. Summary cards take 1 col. Tables and charts take 2-4 cols.",
+    "kanban_board": "Horizontal scrollable flex container with fixed-width columns (e.g., w-80 or w-96). Cards inside use solid background with 1px border and hover effects."
+  },
+  "motion": {
+    "animations": "Strictly minimal. No unnecessary animations, floating elements, or parallax.",
+    "transitions": "Use crisp `transition-colors duration-200 ease-in-out` on buttons, inputs, and interactive items."
+  },
+  "accessibility": {
+    "contrast": "Ensure white/gold text on #000000 or #09090B meets WCAG AA standards.",
+    "focus": "Use `focus:ring-2 focus:ring-[#E0B230] focus:outline-none` for all form elements and buttons.",
+    "testing": "All interactive and key informational elements MUST include a 'data-testid' attribute in kebab-case."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://customer-assets-wrfwihn1.emergentagent.net/job_c29662ff-b3d0-4ff5-afda-03f634ad0a31/artifacts/hyxc3jdq_mm%20media%20logo.png",
+        "category": "logo",
+        "description": "MARKLENCEMEDIA official logo. Must be used in sidebar, login, dashboard, invoice PDFs. Do not modify."
+      }
+    ],
+    "icons": "Use lucide-react (already installed). Keep icons crisp, professional, and minimal."
+  },
+  "components_path": "/app/frontend/src/components/ui",
+  "instructions_to_main_agent": [
+    "Design Identity: Build a premium, minimal, clean, professional SaaS CRM for a digital marketing agency.",
+    "Theme: Strictly dark mode. Set body background strictly to #000000, not gray or slate.",
+    "Brand Colors: Use #E0B230 exclusively as the primary accent color (buttons, active states, key data highlights) and #FFFFFF for primary text.",
+    "Typography: Use 'Montserrat' for ALL typography. Import it and set it as the sans font family in tailwind.config.js.",
+    "Backend & CRUD: Must be a FULLY FUNCTIONAL CRM with database (SQLite/Postgres via FastAPI/SQLAlchemy) and CRUD operations. Implement the core relationship: CLIENT -> SERVICES/PROJECTS -> INVOICES -> PAYMENTS.",
+    "Features: Implement Drag and Drop Kanban for Pipeline (use a library like dnd-kit). Build fully featured tables with search/filters.",
+    "Invoice generation: Implement PDF generation for invoices containing the logo and specific CRM colors.",
+    "Avoid unnecessary animations: The UI should be snappy, direct, and professional. Not accounting software, but agency-focused.",
+    "Follow the exact semantic colors for statuses specified in the colors section."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not center align the app container. No '.App { text-align: center; }'.",
+    "Avoid generic, 'on distribution' AI slop. Make it look like a high-end, bespoke internal tool.",
+    "Use crisp edges via semi-transparent or subtle solid borders. Avoid muddy gray transparency.",
+    "Every interaction needs a hover state (e.g., `hover:bg-[#18181B]`) and active state with sufficient contrast.",
+    "Add `data-testid` to ALL buttons, inputs, links, forms, and key components.",
+    "NEVER use fully transparent backgrounds for overlays, sticky headers, or dropdowns. Use solid `#09090B` or a heavy backdrop blur.",
+    "Use Sonner for toasts."
+  ]
+}

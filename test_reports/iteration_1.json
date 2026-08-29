@@ -1,0 +1,34 @@
+{
+  "summary": "Comprehensive first-pass testing of MARKLENCEMEDIA CRM. Backend: 25 pytest tests covering auth, settings, clients, project + monthly service flows, recurring invoice generation, partial/full payments, invoice status transitions, PDF, leads convert, exit, dashboard — all 25 PASSED. Frontend: verified login, protected routes, dashboard KPIs (9 cards computed from DB, matches backend), navigation across all 9 pages, add client, add service on profile, logout, redirect to /login. All data-testids present and functional.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "compute_invoice_status", "issue": "OVERDUE takes priority over PARTIALLY PAID when balance>0 and due_date is past. Spec is ambiguous but this is a defensible design; flag if UI copy should still surface partial-paid state alongside overdue."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Settings", "issues": ["React hydration console warning: '<span> cannot be a child of <option>' — appears to come from a dev-time source-map instrumentation that wraps option content in a span. Non-blocking in dev, but may cause noise. Consider disabling source-inspector wrapping for <option> or rendering plain text in the currency <select>."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "(Optional) Suppress or fix the hydration warning inside <option> on Settings page."
+  ],
+  "critical_code_review_comments": [
+    "server.py is ~1280 lines — consider splitting into routers (auth.py, clients.py, services.py, invoices.py, payments.py, leads.py, dashboard.py, pdf.py) for maintainability.",
+    "CORS uses allow_origins with a fallback default 'http://localhost:3000'; acceptable but ensure FRONTEND_URL is always set in production.",
+    "list_invoices applies status filter twice (DB query + computed post-filter) — OVERDUE status is computed so DB pre-filter on status='OVERDUE' will always return [] since DB stores PENDING/PARTIALLY PAID; only the post-filter finds them. Works but slightly wasteful; consider skipping DB filter when status=='OVERDUE'.",
+    "seed_admin overwrites password on env mismatch but does NOT bump token_version — old sessions remain valid after a password change via env. Consider $inc token_version when password is reset in seed_admin."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py", "/app/backend/tests/__init__.py"],
+  "success_rate": {"backend": "100% (25/25)", "frontend": "100% of tested flows"},
+  "test_credentials": "mhdjunaidd62562@gmail.com / Marklence@2026 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Tests create TEST_* prefixed clients/services/leads/invoices/payments. Not cleaned up automatically — DB now has residual test data. Main agent may wish to purge before demoing to user.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest runs via `python -m pytest backend/tests/backend_test.py -n 0 -v` (must pass -n 0 because pytest.ini forces xdist -n 2, and shared fixtures across classes break under xdist since each worker creates its own auth session/client). All flows verified end-to-end: monthly recurring generation, partial→full payments status transitions, PDF byte-signature %PDF, lead convert, exit history preserved, dashboard KPI aggregation.",
+  "rca of the issue": "N/A — no functional bugs found. Only cosmetic hydration warning in Settings <select>."
+}

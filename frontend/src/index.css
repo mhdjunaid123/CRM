@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+* {
+  font-family: 'Montserrat', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 240 6% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 6% 4%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 44 74% 54%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 4% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 4% 10%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 240 4% 10%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 44 74% 54%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb { background: #27272A; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #E0B230; }
+
+::selection { background: #E0B230; color: #000000; }
