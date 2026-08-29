@@ -1244,6 +1244,76 @@ async def dashboard(user: dict = Depends(get_current_user)):
     }
 
 
+@api_router.get("/dashboard/income")
+async def dashboard_income(month: str = None, user: dict = Depends(get_current_user)):
+    invoices = [await enrich_invoice(i) for i in await db.invoices.find({}).to_list(10000)]
+    payments = [clean(p) for p in await db.payments.find({}).to_list(20000)]
+    clients = [clean(c) for c in await db.clients.find({}).to_list(5000)]
+    cmap = {c["id"]: c for c in clients}
+    valid = [i for i in invoices if i.get("status") not in ("CANCELLED", "DRAFT")]
+
+    if not month:
+        month = datetime.now(timezone.utc).strftime("%Y-%m")
+
+    def imonth(i):
+        return (i.get("invoice_date") or "")[:7]
+
+    def pmonth(p):
+        return (p.get("payment_date") or "")[:7]
+
+    period_invoiced = sum(float(i.get("total_amount", 0) or 0) for i in valid if imonth(i) == month)
+    period_received = sum(float(p.get("amount", 0) or 0) for p in payments if pmonth(p) == month)
+
+    byc = {}
+    for i in valid:
+        if imonth(i) == month:
+            byc.setdefault(i.get("client_id"), {"invoiced": 0.0, "received": 0.0})["invoiced"] += float(i.get("total_amount", 0) or 0)
+    for p in payments:
+        if pmonth(p) == month:
+            byc.setdefault(p.get("client_id"), {"invoiced": 0.0, "received": 0.0})["received"] += float(p.get("amount", 0) or 0)
+    income_by_client = []
+    for cid, v in byc.items():
+        cl = cmap.get(cid, {})
+        income_by_client.append({
+            "client_id": cid, "client_name": cl.get("client_name", "(Unknown)"),
+            "business_name": cl.get("business_name", ""),
+            "invoiced": round(v["invoiced"], 2), "received": round(v["received"], 2),
+            "outstanding": round(v["invoiced"] - v["received"], 2),
+        })
+    income_by_client.sort(key=lambda x: x["received"], reverse=True)
+
+    now = datetime.now(timezone.utc)
+    months, y, m = [], now.year, now.month
+    for _ in range(12):
+        months.append(f"{y:04d}-{m:02d}")
+        m -= 1
+        if m == 0:
+            m, y = 12, y - 1
+    months = list(reversed(months))
+    inv_by_m = {mm: 0.0 for mm in months}
+    rec_by_m = {mm: 0.0 for mm in months}
+    for i in valid:
+        if imonth(i) in inv_by_m:
+            inv_by_m[imonth(i)] += float(i.get("total_amount", 0) or 0)
+    for p in payments:
+        if pmonth(p) in rec_by_m:
+            rec_by_m[pmonth(p)] += float(p.get("amount", 0) or 0)
+    trend = [{"month": mm, "invoiced": round(inv_by_m[mm], 2), "received": round(rec_by_m[mm], 2)} for mm in months]
+
+    available = sorted({imonth(i) for i in valid if imonth(i)} | {pmonth(p) for p in payments if pmonth(p)}, reverse=True)
+
+    return {
+        "month": month,
+        "period_invoiced": round(period_invoiced, 2),
+        "period_received": round(period_received, 2),
+        "period_outstanding": round(period_invoiced - period_received, 2),
+        "income_by_client": income_by_client,
+        "trend": trend,
+        "available_months": available,
+    }
+
+
+
 # ---------------------------------------------------------------------------
 # Startup
 # ---------------------------------------------------------------------------
