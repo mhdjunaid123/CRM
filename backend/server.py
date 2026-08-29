@@ -938,6 +938,12 @@ def build_invoice_pdf(inv, cl, sv, settings):
     from reportlab.lib import colors
     from reportlab.pdfgen import canvas as pdfcanvas
     from reportlab.lib.utils import ImageReader
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    if "DejaVu" not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont("DejaVu", str(ROOT_DIR / "assets" / "DejaVuSans.ttf")))
+        pdfmetrics.registerFont(TTFont("DejaVu-Bold", str(ROOT_DIR / "assets" / "DejaVuSans-Bold.ttf")))
+
 
     currency = settings.get("currency", "INR")
     GOLD = colors.HexColor("#E0B230")
@@ -960,24 +966,29 @@ def build_invoice_pdf(inv, cl, sv, settings):
         except Exception:
             pass
     c.setFillColor(WHITE)
-    c.setFont("Helvetica-Bold", 20)
+    c.setFont("DejaVu-Bold", 18)
     c.drawString(50 * mm, H - 20 * mm, "MARKLENCEMEDIA")
     c.setFillColor(GOLD)
-    c.setFont("Helvetica", 10)
+    c.setFont("DejaVu", 9)
     c.drawString(50 * mm, H - 26 * mm, "ADVERTISING & AD AGENCY")
     c.setFillColor(WHITE)
-    c.setFont("Helvetica-Bold", 22)
+    c.setFont("DejaVu", 7)
+    c.drawString(50 * mm, H - 31 * mm, "GSTIN: 29FQGPM0059G1ZO")
+    c.drawString(50 * mm, H - 35 * mm, "Email: marklencemediaa@gmail.com")
+    c.drawString(50 * mm, H - 39 * mm, "Ph: +91 8147949450")
+    c.setFillColor(WHITE)
+    c.setFont("DejaVu-Bold", 22)
     c.drawRightString(W - 15 * mm, H - 20 * mm, "INVOICE")
-    c.setFont("Helvetica", 10)
+    c.setFont("DejaVu", 10)
     c.setFillColor(GOLD)
     c.drawRightString(W - 15 * mm, H - 27 * mm, inv.get("invoice_number", ""))
 
     y = H - 58 * mm
     # Bill To
     c.setFillColor(BLACK)
-    c.setFont("Helvetica-Bold", 11)
+    c.setFont("DejaVu-Bold", 11)
     c.drawString(15 * mm, y, "BILL TO")
-    c.setFont("Helvetica", 10)
+    c.setFont("DejaVu", 10)
     c.setFillColor(colors.HexColor("#333333"))
     c.drawString(15 * mm, y - 6 * mm, cl.get("client_name", ""))
     c.drawString(15 * mm, y - 11 * mm, cl.get("business_name", ""))
@@ -987,13 +998,13 @@ def build_invoice_pdf(inv, cl, sv, settings):
         c.drawString(15 * mm, y - 21 * mm, f"Email: {cl.get('email')}")
 
     # Invoice meta right
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont("DejaVu-Bold", 10)
     c.setFillColor(BLACK)
     c.drawRightString(W - 40 * mm, y, "Invoice Date:")
     c.drawRightString(W - 40 * mm, y - 6 * mm, "Due Date:")
     if inv.get("billing_month_label"):
         c.drawRightString(W - 40 * mm, y - 12 * mm, "Billing Month:")
-    c.setFont("Helvetica", 10)
+    c.setFont("DejaVu", 10)
     c.setFillColor(colors.HexColor("#333333"))
     c.drawRightString(W - 15 * mm, y, fmt_date_pdf(inv.get("invoice_date")))
     c.drawRightString(W - 15 * mm, y - 6 * mm, fmt_date_pdf(inv.get("due_date")))
@@ -1005,24 +1016,24 @@ def build_invoice_pdf(inv, cl, sv, settings):
     c.setFillColor(BLACK)
     c.rect(15 * mm, ty, W - 30 * mm, 9 * mm, fill=1, stroke=0)
     c.setFillColor(GOLD)
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont("DejaVu-Bold", 10)
     c.drawString(18 * mm, ty + 2.7 * mm, "DESCRIPTION")
     c.drawRightString(W - 18 * mm, ty + 2.7 * mm, "AMOUNT")
 
     # Row
     ry = ty - 12 * mm
     c.setFillColor(colors.HexColor("#333333"))
-    c.setFont("Helvetica", 10)
+    c.setFont("DejaVu", 10)
     desc = inv.get("description") or sv.get("service_name", "Service")
     c.drawString(18 * mm, ry + 3 * mm, desc[:70])
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont("DejaVu-Bold", 10)
     c.drawRightString(W - 18 * mm, ry + 3 * mm, fmt_money(inv.get("subtotal", 0), currency))
     c.setStrokeColor(LIGHT)
     c.line(15 * mm, ry, W - 15 * mm, ry)
 
     # Totals
     def total_row(label, value, offset, bold=False, color=None):
-        c.setFont("Helvetica-Bold" if bold else "Helvetica", 10)
+        c.setFont("DejaVu-Bold" if bold else "DejaVu", 10)
         c.setFillColor(color or colors.HexColor("#333333"))
         c.drawRightString(W - 55 * mm, offset, label)
         c.drawRightString(W - 15 * mm, offset, value)
@@ -1045,17 +1056,17 @@ def build_invoice_pdf(inv, cl, sv, settings):
     c.setFillColor(colors.HexColor(status_colors.get(status, "#E0B230")))
     c.roundRect(15 * mm, oy - 24 * mm, 45 * mm, 10 * mm, 2 * mm, fill=1, stroke=0)
     c.setFillColor(WHITE)
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont("DejaVu-Bold", 10)
     c.drawCentredString(37.5 * mm, oy - 20.5 * mm, status)
 
     # Footer
     c.setFillColor(BLACK)
     c.rect(0, 0, W, 18 * mm, fill=1, stroke=0)
     c.setFillColor(GOLD)
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont("DejaVu-Bold", 9)
     c.drawCentredString(W / 2, 10 * mm, "MARKLENCEMEDIA Advertising & Ad Agency")
     c.setFillColor(GRAY)
-    c.setFont("Helvetica", 8)
+    c.setFont("DejaVu", 8)
     c.drawCentredString(W / 2, 5 * mm, "Thank you for your business")
 
     c.showPage()
