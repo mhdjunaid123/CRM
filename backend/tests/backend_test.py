@@ -1,7 +1,7 @@
 """
 MARKLENCEMEDIA CRM — Backend regression tests.
 
-Covers: auth (login/me/logout/forgot), settings, clients CRUD,
+Covers: auth (login/me/logout/forgot), settings done, clients CRUD,
 services (project + monthly + edit), monthly next-invoice generation,
 invoices (create, get, PDF, mark-paid), payments (partial→full status),
 leads CRUD + convert, dashboard KPIs.
