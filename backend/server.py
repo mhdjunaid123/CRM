@@ -632,6 +632,24 @@ async def exit_client(client_id: str, body: ExitIn, user: dict = Depends(get_cur
     return clean(c)
 
 
+
+
+@api_router.delete("/clients/{client_id}")
+async def delete_client(client_id: str, user: dict = Depends(get_current_user)):
+    c = await db.clients.find_one({"id": client_id})
+    if not c:
+        raise HTTPException(status_code=404, detail="Client not found")
+    # Cascade: delete payments, invoices, services, activities
+    inv_cursor = db.invoices.find({"client_id": client_id})
+    inv_ids = [i["id"] async for i in inv_cursor]
+    if inv_ids:
+        await db.payments.delete_many({"invoice_id": {"$in": inv_ids}})
+    await db.invoices.delete_many({"client_id": client_id})
+    await db.services.delete_many({"client_id": client_id})
+    await db.activities.delete_many({"client_id": client_id})
+    await db.clients.delete_one({"id": client_id})
+    return {"message": "deleted"}
+
 @api_router.get("/clients/{client_id}/services")
 async def client_services(client_id: str, user: dict = Depends(get_current_user)):
     services = await db.services.find({"client_id": client_id}).sort("created_at", -1).to_list(1000)
