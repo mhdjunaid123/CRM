@@ -743,6 +743,22 @@ async def update_service(service_id: str, body: ServiceUpdate, user: dict = Depe
     return clean(s)
 
 
+
+
+@api_router.delete("/services/{service_id}")
+async def delete_service(service_id: str, user: dict = Depends(get_current_user)):
+    s = await db.services.find_one({"id": service_id})
+    if not s:
+        raise HTTPException(status_code=404, detail="Service not found")
+    # Cascade: delete related payments and invoices
+    inv_cursor = db.invoices.find({"service_id": service_id})
+    inv_ids = [i["id"] async for i in inv_cursor]
+    if inv_ids:
+        await db.payments.delete_many({"invoice_id": {"$in": inv_ids}})
+        await db.invoices.delete_many({"service_id": service_id})
+    await db.services.delete_one({"id": service_id})
+    return {"message": "deleted"}
+
 @api_router.get("/services/{service_id}/invoices")
 async def service_invoices(service_id: str, user: dict = Depends(get_current_user)):
     invs = await db.invoices.find({"service_id": service_id}).sort("billing_month", 1).to_list(1000)
@@ -876,6 +892,17 @@ async def update_invoice(invoice_id: str, body: InvoiceUpdate, user: dict = Depe
     i = await db.invoices.find_one({"id": invoice_id})
     return await enrich_invoice(i)
 
+
+
+
+@api_router.delete("/invoices/{invoice_id}")
+async def delete_invoice(invoice_id: str, user: dict = Depends(get_current_user)):
+    i = await db.invoices.find_one({"id": invoice_id})
+    if not i:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    await db.payments.delete_many({"invoice_id": invoice_id})
+    await db.invoices.delete_one({"id": invoice_id})
+    return {"message": "deleted"}
 
 @api_router.post("/invoices/{invoice_id}/mark-paid")
 async def mark_paid(invoice_id: str, user: dict = Depends(get_current_user)):
